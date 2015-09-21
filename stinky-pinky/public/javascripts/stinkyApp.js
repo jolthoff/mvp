@@ -1,4 +1,7 @@
+
+
 var app = angular.module('stinkyPinky', ['ui.router']);
+
 
 app.config([
 	'$stateProvider',
@@ -15,6 +18,11 @@ app.config([
 				url: '/login',
 				templateUrl: '/login.html',
 				controller: 'LoginController'
+			}).
+			state('signup', {
+				url: '/signup',
+				templateUrl: '/signup.html',
+				controller: 'SignUpController'
 			});
 
 		$urlRouterProvider.otherwise('home');
@@ -31,33 +39,46 @@ app.controller('WelcomeController', ['$scope', 'Auth', function($scope, Auth) {
 }]);
 
 app.controller('LoginController', ['$scope', 'Auth', function($scope, Auth) {
-	var username = $scope.username;
-	var password = $scope.password;
+	
 	$scope.login = function(username, password) {
-		Auth.login($scope.username, $scope.password);
+
+		console.log('username is ' + username + ' ' + 'password is ' + password)
+
+		Auth.login({ username: username, password: password });
 	}
 
-}])
+}]);
+
+app.controller('SignUpController', ['$scope', 'Auth', function($scope, Auth) {
+
+	$scope.signup = function(username, password) {
+
+		console.log('signup username is ' + username + ' ' + 'signup password is ' + password)
+
+		Auth.signin({ username: username, password: password });
+	}
+
+}]);
 
 app.factory('Auth', ['$http', function($http) {
 
 	var authorize = {
-		redirectToLogin: function() {
 
-			return $http.get('/login').then(function(res) {
-				return res.data;
+		login: function(object) {
+			return $http.post('/login', object).then(function(data) {
+				console.log(data);
+			}, function(error) {
+				console.log(error);
 			});
 
 		},
 
-		login: function(username, password) {
-			console.log(username);
-			console.log(password);
-
-		},
-
-		signup: function() {
-
+		signup: function(object) {
+			return $http.post('/signup', object).then(function(data) {
+				console.log(data);
+			}, function(error) {
+				console.log(error);
+			});
 
 		}
 	}

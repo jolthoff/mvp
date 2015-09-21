@@ -19,23 +19,29 @@
 		<h1 class="welcome"> {{ welcome }} </h1>
 		<p class="rules"> {{ rules }} </p>
 
-		<button class="login" value="Login" ng-click="login()">Login</button>
+		<a href="#/login"><button class="redirectToLogin" value="Login">Login</button></a>
 	</script>
 
 	<script type='text/ng-template' id="/login.html">
 
-		<form>
+		<form class="login">
 			<h3>Enter your name</h3>
 
 			<div class="form-group">
-				<input type="text" placeholder="Enter your username" ng-model="username">
+				<input type="text" placeholder="Enter your username" name="username" ng-model="username"></input>
 			</div>
 
 			<div class="form-group">
-				<input type="text" placeholder="Enter your password" ng-model="password"></input>
+				<input type="text" placeholder="Enter your password" name="password" ng-model="password"></input>
 			</div>
-			<button type="submit" class="btn btn-primary" ng-click="login()" >Post</button>
+			<button type="submit" class="btn btn-primary" ng-click="login(username, password)">Enter</button>
 
+		</form>
+
+		<form class="signup">
+			<h3>Need to sign up?</h3>
+
+			<a href="#/signup"><button type="submit" class="btn btn-primary">Sign Up</button></a>
 		</form>
 
 	</script>
