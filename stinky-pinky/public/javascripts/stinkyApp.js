@@ -103,7 +103,7 @@ app.controller('LobbyController', ['$scope', 'Vet', '$timeout', function($scope,
 			$scope.vetted = false;
 			$scope.rejected = false;
 			$scope.wait = false;
-		}, 1000);
+		}, 2000);
 	};
 
 	$scope.waiting = function() {
@@ -113,7 +113,9 @@ app.controller('LobbyController', ['$scope', 'Vet', '$timeout', function($scope,
 
 }]);
 
-app.controller('GameController', ['$scope','Vet','$timeout', function($scope, Vet, $timeout) {
+app.controller('GameController', ['$scope','Vet','$timeout','socket', function($scope, Vet, $timeout, socket) {
+
+	//test sockets in app
 
 	//copy of riddle objects in the database stored in the array
 	$scope.index = 0;
@@ -127,13 +129,23 @@ app.controller('GameController', ['$scope','Vet','$timeout', function($scope, Ve
 	$scope.endgame = false;
 	$scope.points = 0;
 
+	$scope.emit = function() {
+		console.log("emitting");
+		socket.emit('echo', "message");
+		// socket.on('echo', function (data) {
+  //   		socket.emit('echo', data);
+		// });
+	};
+
 	$scope.grabAllRiddles = function() {
+
 		Vet.grabAllRiddles(function(data) {
 			console.log(data);
 			$scope.riddles = angular.copy(data.data);
 			//grab and render a riddle
 			$scope.getRiddle();
 		});
+
 	};
 	$scope.decrementTime = function() {
 		$scope.time -= 1;
@@ -190,15 +202,23 @@ app.controller('GameController', ['$scope','Vet','$timeout', function($scope, Ve
 	};
 
 	$scope.getRiddle = function() {
+		$scope.checkRiddlesLeft();
 		var randomIndex = Math.floor(Math.random() * $scope.riddles.length);
 		$scope.index = randomIndex;
 		$scope.currentRiddle = $scope.riddles[randomIndex];
 	};
 
+	$scope.checkRiddlesLeft = function() {
+		if ($scope.riddles.length === 0) {
+			$scope.gameover();
+		}
+	}
+
 	$scope.gameover = function() {
 		$scope.endgame = true;
 	}
 
+	$scope.emit();
 	$scope.grabAllRiddles();
 	$scope.setTimer();
 }]);
@@ -256,3 +276,32 @@ app.factory('Vet', ['$http', function($http) {
 	return check;
 
 }]);
+
+app.factory('socket', function ($rootScope) {
+  var socket = io.connect();
+
+  return {
+      on: function (eventName, callback) {
+        socket.on(eventName, function () {  
+          var args = arguments;
+          $rootScope.$apply(function () {
+            callback.apply(socket, args);
+          });
+        });
+      },
+      emit: function (eventName, data, callback) {
+        socket.emit(eventName, data, function () {
+          var args = arguments;
+          $rootScope.$apply(function () {
+            if (callback) {
+              callback.apply(socket, args);
+            }
+          });
+        })
+      },
+      disconnect: function () {
+        socket.disconnect();
+      },
+      socket: socket
+    };
+});

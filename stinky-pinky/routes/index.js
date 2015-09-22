@@ -22,19 +22,17 @@ router.post('/login', function(req, res, next) {
 		if (err) { console.log(err) }
 		else if (!user) {
 			//does redirect work?
-			res.render('/login');
-			res.end();
+			res.redirect('http://localhost:3000/#/login');
+			return;
 		} else {
 			bcrypt.compare(password, user.password, function(err, isMatch) {
 				if (isMatch) {
 					//until we have a game condition redirect back home
-					window.localStorage.setItem('username', username);
-					res.render('/lobby.html');
-					res.json(user);
-					res.send("welcome!");
+					res.redirect('http://localhost:3000/#/lobby');
+					return;
 				} else {
-					res.redirect('#/home');
-					res.send("Already a user!");
+					res.redirect('http://localhost:3000/#/login');
+					return;
 				}
 			});
 		}
@@ -61,7 +59,7 @@ router.post('/signup', function(req, res, next) {
 
 		else if (user) {
 			console.log("duplicate user");
-			res.redirect('/');
+			res.redirect('localhost:3000/#/signup');
 		} else {
 			User.create( {
 				username: username,
@@ -71,7 +69,7 @@ router.post('/signup', function(req, res, next) {
 
 				console.log("new user made");
 				// redirect to home until game condition is made
-				res.redirect('/');
+				res.redirect('localhost:3000/#/lobby');
 			})
 		}
 	})

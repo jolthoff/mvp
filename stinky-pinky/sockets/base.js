@@ -1,9 +1,16 @@
 module.exports = function (io) { 
 	io.on('connection', function (socket) {
-	  socket.emit('news', { hello: 'world' });
-	  socket.on('my other event', function (data) {
-	    console.log(data);
-	  });
+		console.log("user connected again!");
+
+		// io.on('sending', function(thing) {
+		// 	console.log("what if i am called?");
+		// 	console.log("thing is " + thing)
+		// });
 	});
 
-}
+	io.on('echo', function (data) {
+		console.log("echo echo");
+    	io.emit('echo', data);
+	});
+
+};

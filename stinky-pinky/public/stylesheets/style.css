@@ -5,13 +5,115 @@ body {
 
 a {
   color: #00B7FF;
+  outline: none; 
+}
+a:focus {
+	outline: none;
+
+}
+
+button {
+	text-align: center;
+	padding: 30px;
+	font-size: 4rem;
+	border-radius: 40px;
+	background-color: white;
+	margin: 10px;
+}
+
+input {
+	text-align: center;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+input:focus {
+	outline: none;
 }
 
 .welcome {
-	font-size: 5rem;
+	font-size: 6rem;
+	text-align: center
 }
 
 .rules {
+	font-size: 2.5rem;
+	text-align: center;
+	margin: 1rem;
+}
+
+.play-message {
+	text-align: center;
+	font-size: 8rem;
+}
+
+.send-riddle {
+	margin: 200px 0 0 0;
+	text-align: center;
+}
+
+.accepted, .rejected {
 	font-size: 2rem;
-	padding: 1rem;
+	margin-bottom: 2rem;
+}
+
+.accepted {
+	color: green;
+}
+
+.rejected {
+	color: red;
+}
+
+.waiting {
+	font-size: 2rem;
+	margin-top: 4rem;
+	color: blue;
+}
+
+.current-riddle {
+	font-size: 9rem;
+	text-align: center;
+	color: pink;
+}
+
+.answer {
+	margin-top: 1rem;
+	font-size:3rem;
+	text-align: center;
+}
+
+.respond, .skip {
+	font-size: 2rem;
+	padding: 2rem;
+	border-radius: 30px;
+}
+
+.respond:focus, .skip:focus {
+	outline: none;
+}
+
+.points, .timer {
+	text-align: center;
+	margin: 50px 0px 0 130px;
+	display: inline-block;
+	color: rgb(100,149,237)
+}
+
+.wrong {
+	font-size: 5rem;
+	font-weight: bold;
+	color: red;
+}
+
+.over, .score {
+	text-align: center;
+}
+
+.over {
+	font-size: 7rem;
+}
+
+.score {
+	font-size: 5rem;
 }

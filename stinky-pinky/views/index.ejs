@@ -4,6 +4,7 @@
     <title><%= title %></title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel='stylesheet' href='/stylesheets/style.css'>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/stinkyApp.js"></script>
@@ -21,6 +22,7 @@
 
 		<a href="#/login"><button class="redirectToLogin" value="Login">Login</button></a>
 		<a href="#/lobby"><button class="redirectToLobby" value="Lobby">Lobby</button></a>
+		
 	</script>
 
 	<script type='text/ng-template' id="/login.html">
@@ -96,19 +98,19 @@
 
 	<script type="text/ng-template" id="/game.html">
 
+
 		<div class="game" ng-hide="endgame">
 			<h1 class="current-riddle"> {{ currentRiddle.r }} </h1>
 
 			<form class="answer">
-				<h3>Give us an Answer</h3>
 
 				<div class="form-group">
 					<div class="wrong" ng-show="wrong" style="font-size:50px">WRONG</div>
 					<input type="text" placeholder="Give us the Stink" name="response" ng-model="response" ng-hide="wrong"></input>
 				</div>
 
-				<button	type="submit" class="btn btn-primary" ng-click="checkAnswer(response)">Answer</button>
-				<button type="submit" class="btn btn-primary" ng-click="skipRiddle()">Skip</button>
+				<button	type="submit" class="btn btn-primary respond" ng-click="checkAnswer(response)">Answer</button>
+				<button type="submit" class="btn btn-primary skip" ng-click="skipRiddle()">Skip</button>
 			</form>
 
 			<h2 class="points"> Score: {{ points }} </h2>
@@ -116,10 +118,14 @@
 		</div>
 
 		<div class="gameover" ng-show="endgame">
-			<h1 class="score"> You got {{ points }} points!</h1>
+			<h1 class="over"> Game Over </h1>
+			<h2 class="score"> You got {{ points }} points!</h2>
 		</div>
 
+
+
 	</script>
+
 
   </body>
 </html>
