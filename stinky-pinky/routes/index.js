@@ -10,6 +10,7 @@ router.get('/', function(req, res, next) {
 var mongoose = require('mongoose');
 
 var User = mongoose.model('User');
+var Riddle = mongoose.model('Riddle');
 
 router.post('/login', function(req, res, next) {
 	var username = req.body.username;
@@ -19,13 +20,16 @@ router.post('/login', function(req, res, next) {
 		if (err) { console.log(err) }
 		else if (!user) {
 			//does redirect work?
-			res.redirect('#/login');
+			res.render('/login');
+			res.end();
 		} else {
 			bcrypt.compare(password, user.password, function(err, isMatch) {
 				if (isMatch) {
 					//until we have a game condition redirect back home
 					window.localStorage.setItem('username', username);
+					res.render('/lobby.html');
 					res.json(user);
+					res.send("welcome!");
 				} else {
 					res.redirect('#/home');
 					res.send("Already a user!");
@@ -52,21 +56,58 @@ router.post('/signup', function(req, res, next) {
 
 	User.findOne( {username: username }, function(err, user) {
 		if (err) { console.log(err) }
-			else if (user) {
-				console.log("duplicate user");
-				res.redirect('/');
-			} else {
-				User.create( {
-					username: username,
-					password: cipher
-				}, function (err, user) {
-					if (err) {console.log (err) }
 
-					console.log("new user made");
-					// redirect to home until game condition is made
-					res.redirect('/');
-				})
-			}
+		else if (user) {
+			console.log("duplicate user");
+			res.redirect('/');
+		} else {
+			User.create( {
+				username: username,
+				password: cipher
+			}, function (err, user) {
+				if (err) {console.log(err) }
+
+				console.log("new user made");
+				// redirect to home until game condition is made
+				res.redirect('/');
+			})
+		}
+	})
+});
+
+router.post('/riddles', function(req, res, next) {
+	var riddle = req.body.riddle.toLowerCase();
+	var answer = req.body.answer.toLowerCase();
+
+	Riddle.findOne( {r: riddle}, function(err, exists) {
+		if (err) { console.log(err) }
+		else if (exists) {
+			console.log('duplicate riddle');
+			res.send("Duplicate riddle");
+		} else {
+			Riddle.create( {
+				r: riddle,
+				a: answer
+			}, function (err, riddle) {
+				if (err) { console.log(err) }
+
+					console.log("new riddle inserted");
+
+					res.send("thank you!");
+			});
+		}
+	})
+
+});
+
+router.get('/riddles', function(req, res, next) {
+
+	Riddle.find(function(err, riddles) {
+		if ( err ) { console.log(err) }
+		else {
+			res.send(riddles);
+		}
+
 	})
 })
 

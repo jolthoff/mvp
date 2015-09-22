@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
 require('./models/Users.js');
+require('./models/Riddles.js');
 
 mongoose.connect('mongodb://localhost/stinky');
 

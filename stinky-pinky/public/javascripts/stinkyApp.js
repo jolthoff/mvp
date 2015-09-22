@@ -81,29 +81,40 @@ app.controller('LobbyController', ['$scope', 'Vet', function($scope, Vet) {
 
 	$scope.send = function(riddle, answer) {
 
-		console.log('your riddle is ' + riddle + ' your answer is ' + answer)
-
 		Vet.check({ riddle: riddle, answer: answer }, function(data) {
 			console.log(data);
+			$scope.riddle = '';
+			$scope.answer = '';
 		})
 	};
 
 
 }]);
 
-app.controller('GameController', ['$scope', function($scope) {
+app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
 
 	//copy of riddle objects in the database stored in the array
 	$scope.index = 0;
-	$scope.riddles = [{r: 'Start', a: 'Heart'}];
+	$scope.riddles = [];
 
 	//rendered riddle for user to answer
 	$scope.currentRiddle;
-
+	$scope.response;
 	$scope.points = 0;
 
-	$scope.answer = function(answer) {
-		if (answer.toLowerCase() === $scope.currentRiddle.answer.toLowerCase()) {
+	$scope.grabAllRiddles = function() {
+		Vet.grabAllRiddles(function(data) {
+			console.log(data);
+			$scope.riddles = angular.copy(data.data);
+			//grab and render a riddle;
+			$scope.getRiddle();
+		});
+	};
+
+	$scope.checkAnswer = function(response) {
+		console.log(response);
+		console.log($scope.response);
+		if (response.toLowerCase() === $scope.currentRiddle.a.toLowerCase()) {
 			$scope.correctAnswer();
 		} else {
 			$scope.incorrectAnswer();
@@ -133,6 +144,9 @@ app.controller('GameController', ['$scope', function($scope) {
 		$scope.index = randomIndex;
 		$scope.currentRiddle = $scope.riddles[randomIndex];
 	};
+
+	$scope.grabAllRiddles();
+	
 
 }])
 
@@ -175,9 +189,17 @@ app.factory('Vet', ['$http', function($http) {
 			}, function(error) {
 				console.log(error);
 			});
+		},
+
+		grabAllRiddles: function(cb) {
+			return $http.get('/riddles').then(function(data) {
+				cb(data);
+			}, function(error) {
+				console.log(error);
+			});
 		}
 	}
 
 	return check;
 
-}])
+}]);

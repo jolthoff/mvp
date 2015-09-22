@@ -85,9 +85,28 @@
 			<div class="form-group">
 				<input type="text" placeholder="The answer please" name="answer" ng-model="answer"></input>
 			</div>
+
 			<button type="submit" class="btn btn-primary" ng-click="send(riddle, answer)">Thank you</button>
 
 		</form>
+
+	</script>
+
+	<script type="text/ng-template" id="/game.html">
+
+		<h1 class="current-riddle"> {{ currentRiddle.r }} </h1>
+
+		<form class="answer">
+			<h3>Give us an Answer</h3>
+
+			<div class="form-group">
+				<input type="text" placeholder="Give us the Stink" name="response" ng-model="response"></input>
+			</div>
+
+			<button	type="submit" class="btn btn-primary" ng-click="checkAnswer(response)">Answer</button>
+		</form>
+
+		<h2 class="points"> {{ points }} </h2>
 
 	</script>
 
