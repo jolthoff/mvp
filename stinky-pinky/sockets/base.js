@@ -1,16 +1,20 @@
 module.exports = function (io) { 
 	io.on('connection', function (socket) {
 		console.log("user connected again!");
+		socket.on('updateTime', function(data) {
+			io.emit('updateTime', data);
+		});
 
-		// io.on('sending', function(thing) {
-		// 	console.log("what if i am called?");
-		// 	console.log("thing is " + thing)
-		// });
-	});
+		socket.on('updateRiddle', function(data) {
+			io.emit('updateRiddle', data);
+			console.log("current riddle is " + JSON.stringify(data));
+		});
 
-	io.on('echo', function (data) {
-		console.log("echo echo");
-    	io.emit('echo', data);
+		socket.on('updatePoints', function(data) {
+			io.emit('updatePoints', data);
+
+			console.log("points are " + data)
+		})
 	});
 
 };

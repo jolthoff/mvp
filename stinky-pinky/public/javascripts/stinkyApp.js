@@ -129,13 +129,40 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 	$scope.endgame = false;
 	$scope.points = 0;
 
-	$scope.emit = function() {
-		console.log("emitting");
-		socket.emit('echo', "message");
-		// socket.on('echo', function (data) {
-  //   		socket.emit('echo', data);
-		// });
+	socket.on('updateTime', function(data) {
+		$scope.time = data;
+		console.log(data);
+	});
+
+	socket.on('updateRiddle', function(data) {
+		$scope.currentRiddle = data;
+		console.log("current riddle is " + $scope.currentRiddle)
+	});
+
+	socket.on('updatePoints', function(data) {
+		$scope.points = data;
+		console.log("points are " + $scope.points)
+	});
+
+	socket.on('updateEnd', function(data) {
+		$scope.endgame = data;
+	})
+
+	$scope.sendTime = function() {
+		socket.emit('updateTime', $scope.time);
 	};
+
+	$scope.sendRiddle = function() {
+		socket.emit('updateRiddle', $scope.currentRiddle);
+	};
+
+	$scope.sendPoints = function() {
+		socket.emit('updatePoints', $scope.points);
+	};
+
+	$scope.sendEnd = function() {
+		socket.emit('updateEnd', $scope.endgame);
+	}
 
 	$scope.grabAllRiddles = function() {
 
@@ -147,10 +174,14 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 		});
 
 	};
+
 	$scope.decrementTime = function() {
-		$scope.time -= 1;
-		if ($scope.time <= 0) {
-			$scope.gameover();
+		if (!$scope.endgame) {
+			$scope.time -= 1;
+			$scope.sendTime();
+			if ($scope.time <= 0) {
+				$scope.gameover();
+			}
 		}
 	};
 
@@ -162,6 +193,7 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 
 	$scope.resetTime = function() {
 		$scope.time = 60;
+		$scope.sendTime();
 	}
 
 	$scope.checkAnswer = function(response) {
@@ -181,6 +213,7 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 		$scope.response = '';
 		$scope.getRiddle();
 		$scope.resetTime();
+		$scope.sendPoints();
 	};
 
 	$scope.incorrectAnswer = function() {
@@ -196,6 +229,7 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 
 	$scope.skipRiddle = function() {
 		$scope.points -= 1;
+		$scope.sendPoints();
 		$scope.riddles.splice($scope.index, 1);
 		$scope.getRiddle();
 		$scope.resetTime();
@@ -206,6 +240,7 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 		var randomIndex = Math.floor(Math.random() * $scope.riddles.length);
 		$scope.index = randomIndex;
 		$scope.currentRiddle = $scope.riddles[randomIndex];
+		$scope.sendRiddle();
 	};
 
 	$scope.checkRiddlesLeft = function() {
@@ -218,9 +253,9 @@ app.controller('GameController', ['$scope','Vet','$timeout','socket', function($
 		$scope.endgame = true;
 	}
 
-	$scope.emit();
 	$scope.grabAllRiddles();
 	$scope.setTimer();
+	
 }]);
 
 app.factory('Auth', ['$http', function($http) {
