@@ -78,15 +78,17 @@
 		<form class="send-riddle">
 			<h3>Send us your riddles!</h3>
 
-			<div class="form-group">
+			<div class="accepted" ng-show="vetted">Your riddle has been added! Thank you!</div>
+			<div class="rejected" ng-show="rejected">Hmm... Something is wrong with your riddle. Try sending another!</div>
+			<div class="form-group" ng-hide="vetted || rejected">
 				<input type="text" placeholder="Your Riddle Here" name="riddle" ng-model="riddle"></input>
 			</div>
 
-			<div class="form-group">
+			<div class="form-group" ng-hide="vetted || rejected">
 				<input type="text" placeholder="The answer please" name="answer" ng-model="answer"></input>
 			</div>
-
-			<button type="submit" class="btn btn-primary" ng-click="send(riddle, answer)">Thank you</button>
+			<div class="waiting" ng-show="wait">**Beep**Boop**Analyzing your riddle**Beep**</div>
+			<button type="submit" class="btn btn-primary" ng-click="send(riddle, answer)" ng-hide="wait">Thank you</button>
 
 		</form>
 

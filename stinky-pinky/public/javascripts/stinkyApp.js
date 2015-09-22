@@ -1,5 +1,3 @@
-
-
 var app = angular.module('stinkyPinky', ['ui.router']);
 
 
@@ -77,17 +75,40 @@ app.controller('SignUpController', ['$scope', 'Auth', function($scope, Auth) {
 
 }]);
 
-app.controller('LobbyController', ['$scope', 'Vet', function($scope, Vet) {
+app.controller('LobbyController', ['$scope', 'Vet', '$timeout', function($scope, Vet, $timeout) {
 
-	
+	$scope.vetted = false;
+	$scope.rejected = false;
+	$scope.wait = false;
+
 	$scope.send = function(riddle, answer) {
-
+		$scope.waiting();
 		Vet.check({ riddle: riddle, answer: answer }, function(data) {
 			console.log(data);
+			if (data.data === "thank you!") {
+				$scope.vetted = true;
+				$scope.reset();
+			} else if (data.data === "no good") {
+				$scope.rejected = true;
+				$scope.reset();
+			}
+
 			$scope.riddle = '';
 			$scope.answer = '';
 		})
 	};
+
+	$scope.reset = function() {
+		$timeout(function() {
+			$scope.vetted = false;
+			$scope.rejected = false;
+			$scope.wait = false;
+		}, 1000);
+	};
+
+	$scope.waiting = function() {
+		$scope.wait = true;
+	}
 
 
 }]);

@@ -86,18 +86,24 @@ router.post('/riddles', function(req, res, next) {
 
 	var wordsArray = riddle.split(' ').concat(answer.split(' '));
 
+	if (wordsArray.length !== 4) {
+		res.send("no good");
+		return;
+	}
+
 	var firstWord = wordsArray[0];
 	var secondWord = wordsArray[1];
 	var thirdWord = wordsArray[2];
 	var fourthWord = wordsArray[3];
 
-	console.log("words array is " + wordsArray);
+	
 
 	Riddle.findOne( {r: riddle}, function(err, exists) {
 		if (err) { console.log(err) }
 		else if (exists) {
 			console.log('duplicate riddle');
 			res.send("Duplicate riddle");
+			return;
 		} else {
 
 
@@ -126,6 +132,9 @@ router.post('/riddles', function(req, res, next) {
 							rhymePair = true;
 						}
 					  }
+				  } else {
+				  	res.send("no good");
+				  	return;
 				  }
 
 				  unirest.get("https://wordsapiv1.p.mashape.com/words/" + firstWord + "/synonyms")
@@ -143,6 +152,9 @@ router.post('/riddles', function(req, res, next) {
 							}
 						  }
 
+					  } else {
+					  	res.send("no good");
+					  	return;
 					  }
 
 					  unirest.get("https://wordsapiv1.p.mashape.com/words/" + secondWord + "/synonyms")
@@ -158,6 +170,9 @@ router.post('/riddles', function(req, res, next) {
 									secondRelatePair = true;
 								}
 							  }
+						  } else {
+						  	res.send("no good");
+						  	return;
 						  }
 
 						  if (rhymePair && firstRelatePair && secondRelatePair) {
@@ -172,6 +187,7 @@ router.post('/riddles', function(req, res, next) {
 
 						  } else {
 						  	res.send("no good");
+						  	return;
 						  }
 
 						});
