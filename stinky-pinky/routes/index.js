@@ -4,8 +4,6 @@ var bcrypt = require('bcrypt-nodejs');
 var request = require('request');
 var unirest = require('unirest');
 
-var wordsKey = 'hoB3hWwRWwmshPspsQPB1d3rZYLxp1UqsTmjsnMtzBcZlmVWJ4';
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Stinky Pinky' });
