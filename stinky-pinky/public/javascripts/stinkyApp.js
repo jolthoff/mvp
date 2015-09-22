@@ -79,6 +79,7 @@ app.controller('SignUpController', ['$scope', 'Auth', function($scope, Auth) {
 
 app.controller('LobbyController', ['$scope', 'Vet', function($scope, Vet) {
 
+	
 	$scope.send = function(riddle, answer) {
 
 		Vet.check({ riddle: riddle, answer: answer }, function(data) {

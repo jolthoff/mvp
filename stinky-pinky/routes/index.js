@@ -100,44 +100,15 @@ router.post('/riddles', function(req, res, next) {
 			res.send("Duplicate riddle");
 		} else {
 
-			var pairObject = {
-				rhymePair: null,
-				firstRelatePair: null,
-				secondRelatePair: null
-			};
 
-			var inserted = false;
-
-			var insertRiddle = function() {
-				if (pairObject.rhymePair && pairObject.firstRelatePair && pairObject.secondRelatePair && !inserted) {
-					Riddle.create( {
-						r: riddle,
-						a: answer
-					}, function (err, riddle) {
-						if (err) { console.log(err) }
-							inserted = true;
-							console.log("new riddle inserted");
-							res.send("thank you!");
-					});
-				  }
-			}
-
-			var when = function(object, cb) {
-				for (var key in object) {
-					if (key == null) {
-						return;
-					} else {
-						cb();
-					}
-				}
-			};
-
+			var rhymePair = false;
+			var firstRelatePair = false;
+			var secondRelatePair = false;
 			
 			
 
 			var thirdWordRhymes;
 			// var fourthWordRhymes;
-
 			var firstWordSynonyms;
 			var secondWordSynonyms;
 
@@ -145,52 +116,69 @@ router.post('/riddles', function(req, res, next) {
 				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
 				.header("Accept", "application/json")
 				.end(function (result) {
-				  // console.log(result.status, result.headers, result.body);
+
 				  thirdWordRhymes = result.body.rhymes.all;
-				  console.log("thirdWordRhymes " + thirdWordRhymes);
-				  for (var i = 0; i < thirdWordRhymes.length; i++) {
-					if (fourthWord === thirdWordRhymes[i]) {
-						rhymePair = true;
-					}
-				  }
-				  pairObject.rhymePair = false;
-				  when(pairObject, insertRiddle);
-				});
 
 
-			unirest.get("https://wordsapiv1.p.mashape.com/words/" + firstWord + "/synonyms")
-				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
-				.header("Accept", "application/json")
-				.end(function (result) {
-				  // console.log(result.status, result.headers, result.body);
-				  firstWordSynonyms = result.body.synonyms;
-				  console.log("firstWordSynonyms is " + firstWordSynonyms);
-				  for (var i = 0; i < firstWordSynonyms.length; i++) {
-					if (thirdWord === firstWordSynonyms[i]) {
-						pairObject.firstRelatePair = true;
-					}
+				  if (thirdWordRhymes) {
+					  for (var i = 0; i < thirdWordRhymes.length; i++) {
+						if (fourthWord === thirdWordRhymes[i]) {
+							rhymePair = true;
+						}
+					  }
 				  }
-				  pairObject.firstRelatePair = false;
-				  when(pairObject, insertRiddle);
+
+				  unirest.get("https://wordsapiv1.p.mashape.com/words/" + firstWord + "/synonyms")
+					.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
+					.header("Accept", "application/json")
+					.end(function (result) {
+					  // console.log(result.status, result.headers, result.body);
+					  firstWordSynonyms = result.body.synonyms;
+
+					  if (firstWordSynonyms) {
+
+						  for (var i = 0; i < firstWordSynonyms.length; i++) {
+							if (thirdWord === firstWordSynonyms[i]) {
+								firstRelatePair = true;
+							}
+						  }
+
+					  }
+
+					  unirest.get("https://wordsapiv1.p.mashape.com/words/" + secondWord + "/synonyms")
+						.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
+						.header("Accept", "application/json")
+						.end(function (result) {
+						  // console.log(result.status, result.headers, result.body);
+						  secondWordSynonyms = result.body.synonyms;
+
+						  if (secondWordSynonyms) {
+							 for (var i = 0; i < secondWordSynonyms.length; i++) {
+								if (fourthWord === secondWordSynonyms[i]) {
+									secondRelatePair = true;
+								}
+							  }
+						  }
+
+						  if (rhymePair && firstRelatePair && secondRelatePair) {
+							Riddle.create( {
+								r: riddle,
+								a: answer
+							}, function (err, riddle) {
+								if (err) { console.log(err) }
+									console.log("new riddle inserted");
+									res.send("thank you!");
+							});
+
+						  } else {
+						  	res.send("no good");
+						  }
+
+						});
+					});
+
 				});
 
-			unirest.get("https://wordsapiv1.p.mashape.com/words/" + secondWord + "/synonyms")
-				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
-				.header("Accept", "application/json")
-				.end(function (result) {
-				  // console.log(result.status, result.headers, result.body);
-				  secondWordSynonyms = result.body.synonyms;
-				  console.log("secondWordSynonyms is " + secondWordSynonyms)
-				  for (var i = 0; i < secondWordSynonyms.length; i++) {
-					if (fourthWord === secondWordSynonyms[i]) {
-						pairObject.secondRelatePair = true;
-					}
-				  }
-				  pairObject.secondRelatePair = false;
-				  
-				  when(pairObject, insertRiddle);
-				});
-				
 		}
 	})
 
