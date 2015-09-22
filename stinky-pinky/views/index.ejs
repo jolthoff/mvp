@@ -20,6 +20,7 @@
 		<p class="rules"> {{ rules }} </p>
 
 		<a href="#/login"><button class="redirectToLogin" value="Login">Login</button></a>
+		<a href="#/lobby"><button class="redirectToLobby" value="Lobby">Lobby</button></a>
 	</script>
 
 	<script type='text/ng-template' id="/login.html">
@@ -28,11 +29,11 @@
 			<h3>Enter your name</h3>
 
 			<div class="form-group">
-				<input type="text" placeholder="Enter your username" name="username" ng-model="username"></input>
+				<input type="text" placeholder="username" name="username" ng-model="username"></input>
 			</div>
 
 			<div class="form-group">
-				<input type="text" placeholder="Enter your password" name="password" ng-model="password"></input>
+				<input type="text" placeholder="password" name="password" ng-model="password"></input>
 			</div>
 			<button type="submit" class="btn btn-primary" ng-click="login(username, password)">Enter</button>
 
@@ -42,6 +43,50 @@
 			<h3>Need to sign up?</h3>
 
 			<a href="#/signup"><button type="submit" class="btn btn-primary">Sign Up</button></a>
+		</form>
+
+	</script>
+
+	<script type="text/ng-template" id="/signup.html">
+
+		<form class="signup">
+			<h3>Enter your name</h3>
+
+			<div class="form-group">
+				<input type="text" placeholder="username" name="username" ng-model="username"></input>
+			</div>
+
+			<div class="form-group">
+				<input type="text" placeholder="password" name="password" ng-model="password"></input>
+			</div>
+			<button type="submit" class="btn btn-primary" ng-click="signup(username, password)">Enter</button>
+
+		</form>
+
+		<form class="signup">
+			<h3>Already a user?</h3>
+
+			<a href="#/login"><button type="submit" class="btn btn-primary">Login</button></a>
+		</form>
+
+	</script>
+
+	<script type="text/ng-template" id="/lobby.html">
+
+		<a href="#/game"><h1 class="play-message">Play Stinky Pinky</h1></a>
+
+		<form class="send-riddle">
+			<h3>Send us your riddles!</h3>
+
+			<div class="form-group">
+				<input type="text" placeholder="Your Riddle Here" name="riddle" ng-model="riddle"></input>
+			</div>
+
+			<div class="form-group">
+				<input type="text" placeholder="The answer please" name="answer" ng-model="answer"></input>
+			</div>
+			<button type="submit" class="btn btn-primary" ng-click="send(riddle, answer)">Thank you</button>
+
 		</form>
 
 	</script>
