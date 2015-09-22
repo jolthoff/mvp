@@ -27,12 +27,14 @@ app.config([
 			state('lobby', {
 				url: '/lobby',
 				templateUrl: '/lobby.html',
-				controller: 'LobbyController'
+				controller: 'LobbyController',
+				authenticate: true
 			}).
 			state('game', {
 				url: '/game',
 				templateUrl: '/game.html',
-				controller: 'GameController'
+				controller: 'GameController',
+				authenticate: true
 			});
 
 		$urlRouterProvider.otherwise('home');
@@ -41,11 +43,9 @@ app.config([
 
 app.controller('WelcomeController', ['$scope', 'Auth', function($scope, Auth) {
 	$scope.welcome = "Welcome to Stinky Pinky!";
+
 	$scope.rules = "When you begin the game, we will give you a clue and you give us a rhyming word pair where the first word relates to the first we give you and the second word relates to the second word we give you!";
 
-	$scope.login = function() {
-		Auth.redirectToLogin();
-	}
 
 }]);
 
@@ -59,7 +59,7 @@ app.controller('LoginController', ['$scope', 'Auth', function($scope, Auth) {
 			$scope.username = '';
 			$scope.password = '';
 		});
-	}
+	};
 
 }]);
 
@@ -91,7 +91,7 @@ app.controller('LobbyController', ['$scope', 'Vet', function($scope, Vet) {
 
 }]);
 
-app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
+app.controller('GameController', ['$scope','Vet','$timeout', function($scope, Vet, $timeout) {
 
 	//copy of riddle objects in the database stored in the array
 	$scope.index = 0;
@@ -100,21 +100,40 @@ app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
 	//rendered riddle for user to answer
 	$scope.currentRiddle;
 	$scope.response;
+	$scope.time = 60;
+	$scope.wrong = false;
+	$scope.endgame = false;
 	$scope.points = 0;
 
 	$scope.grabAllRiddles = function() {
 		Vet.grabAllRiddles(function(data) {
 			console.log(data);
 			$scope.riddles = angular.copy(data.data);
-			//grab and render a riddle;
+			//grab and render a riddle
 			$scope.getRiddle();
 		});
 	};
+	$scope.decrementTime = function() {
+		$scope.time -= 1;
+		if ($scope.time <= 0) {
+			$scope.gameover();
+		}
+	};
+
+	$scope.setTimer = function() {
+		var timer = setInterval(function() {
+			$scope.$apply($scope.decrementTime());
+		}, 1000);
+	};
+
+	$scope.resetTime = function() {
+		$scope.time = 60;
+	}
 
 	$scope.checkAnswer = function(response) {
-		console.log(response);
-		console.log($scope.response);
-		if (response.toLowerCase() === $scope.currentRiddle.a.toLowerCase()) {
+		if (!response) {
+			$scope.incorrectAnswer();
+		} else if (response.toLowerCase() === $scope.currentRiddle.a.toLowerCase()) {
 			$scope.correctAnswer();
 		} else {
 			$scope.incorrectAnswer();
@@ -125,11 +144,19 @@ app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
 	$scope.correctAnswer = function() {
 		$scope.points += 1;
 		$scope.riddles.splice($scope.index, 1);
+		$scope.response = '';
 		$scope.getRiddle();
+		$scope.resetTime();
 	};
 
 	$scope.incorrectAnswer = function() {
 		// subtract points until animation can be made
+		$scope.wrong = true;
+		$scope.response = '';
+		$scope.decrementTime();
+		$timeout(function(passed) {
+			$scope.wrong = false;
+		}, 600);
 
 	};
 
@@ -137,6 +164,7 @@ app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
 		$scope.points -= 1;
 		$scope.riddles.splice($scope.index, 1);
 		$scope.getRiddle();
+		$scope.resetTime();
 	};
 
 	$scope.getRiddle = function() {
@@ -145,10 +173,13 @@ app.controller('GameController', ['$scope','Vet', function($scope, Vet) {
 		$scope.currentRiddle = $scope.riddles[randomIndex];
 	};
 
-	$scope.grabAllRiddles();
-	
+	$scope.gameover = function() {
+		$scope.endgame = true;
+	}
 
-}])
+	$scope.grabAllRiddles();
+	$scope.setTimer();
+}]);
 
 app.factory('Auth', ['$http', function($http) {
 

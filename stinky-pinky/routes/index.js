@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt-nodejs');
+var request = require('request');
+var unirest = require('unirest');
+
+var wordsKey = 'hoB3hWwRWwmshPspsQPB1d3rZYLxp1UqsTmjsnMtzBcZlmVWJ4';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -76,8 +80,18 @@ router.post('/signup', function(req, res, next) {
 });
 
 router.post('/riddles', function(req, res, next) {
+
 	var riddle = req.body.riddle.toLowerCase();
 	var answer = req.body.answer.toLowerCase();
+
+	var wordsArray = riddle.split(' ').concat(answer.split(' '));
+
+	var firstWord = wordsArray[0];
+	var secondWord = wordsArray[1];
+	var thirdWord = wordsArray[2];
+	var fourthWord = wordsArray[3];
+
+	console.log("words array is " + wordsArray);
 
 	Riddle.findOne( {r: riddle}, function(err, exists) {
 		if (err) { console.log(err) }
@@ -85,16 +99,98 @@ router.post('/riddles', function(req, res, next) {
 			console.log('duplicate riddle');
 			res.send("Duplicate riddle");
 		} else {
-			Riddle.create( {
-				r: riddle,
-				a: answer
-			}, function (err, riddle) {
-				if (err) { console.log(err) }
 
-					console.log("new riddle inserted");
+			var pairObject = {
+				rhymePair: null,
+				firstRelatePair: null,
+				secondRelatePair: null
+			};
 
-					res.send("thank you!");
-			});
+			var inserted = false;
+
+			var insertRiddle = function() {
+				if (pairObject.rhymePair && pairObject.firstRelatePair && pairObject.secondRelatePair && !inserted) {
+					Riddle.create( {
+						r: riddle,
+						a: answer
+					}, function (err, riddle) {
+						if (err) { console.log(err) }
+							inserted = true;
+							console.log("new riddle inserted");
+							res.send("thank you!");
+					});
+				  }
+			}
+
+			var when = function(object, cb) {
+				for (var key in object) {
+					if (key == null) {
+						return;
+					} else {
+						cb();
+					}
+				}
+			};
+
+			
+			
+
+			var thirdWordRhymes;
+			// var fourthWordRhymes;
+
+			var firstWordSynonyms;
+			var secondWordSynonyms;
+
+			unirest.get("https://wordsapiv1.p.mashape.com/words/" + thirdWord + "/rhymes")
+				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
+				.header("Accept", "application/json")
+				.end(function (result) {
+				  // console.log(result.status, result.headers, result.body);
+				  thirdWordRhymes = result.body.rhymes.all;
+				  console.log("thirdWordRhymes " + thirdWordRhymes);
+				  for (var i = 0; i < thirdWordRhymes.length; i++) {
+					if (fourthWord === thirdWordRhymes[i]) {
+						rhymePair = true;
+					}
+				  }
+				  pairObject.rhymePair = false;
+				  when(pairObject, insertRiddle);
+				});
+
+
+			unirest.get("https://wordsapiv1.p.mashape.com/words/" + firstWord + "/synonyms")
+				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
+				.header("Accept", "application/json")
+				.end(function (result) {
+				  // console.log(result.status, result.headers, result.body);
+				  firstWordSynonyms = result.body.synonyms;
+				  console.log("firstWordSynonyms is " + firstWordSynonyms);
+				  for (var i = 0; i < firstWordSynonyms.length; i++) {
+					if (thirdWord === firstWordSynonyms[i]) {
+						pairObject.firstRelatePair = true;
+					}
+				  }
+				  pairObject.firstRelatePair = false;
+				  when(pairObject, insertRiddle);
+				});
+
+			unirest.get("https://wordsapiv1.p.mashape.com/words/" + secondWord + "/synonyms")
+				.header("X-Mashape-Key", "re3jL1GhEGmshZqisjbtjgAx655Yp1F7erajsnVcZtnphNDwZL")
+				.header("Accept", "application/json")
+				.end(function (result) {
+				  // console.log(result.status, result.headers, result.body);
+				  secondWordSynonyms = result.body.synonyms;
+				  console.log("secondWordSynonyms is " + secondWordSynonyms)
+				  for (var i = 0; i < secondWordSynonyms.length; i++) {
+					if (fourthWord === secondWordSynonyms[i]) {
+						pairObject.secondRelatePair = true;
+					}
+				  }
+				  pairObject.secondRelatePair = false;
+				  
+				  when(pairObject, insertRiddle);
+				});
+				
 		}
 	})
 
@@ -109,6 +205,6 @@ router.get('/riddles', function(req, res, next) {
 		}
 
 	})
-})
+});
 
 module.exports = router;

@@ -94,19 +94,28 @@
 
 	<script type="text/ng-template" id="/game.html">
 
-		<h1 class="current-riddle"> {{ currentRiddle.r }} </h1>
+		<div class="game" ng-hide="endgame">
+			<h1 class="current-riddle"> {{ currentRiddle.r }} </h1>
 
-		<form class="answer">
-			<h3>Give us an Answer</h3>
+			<form class="answer">
+				<h3>Give us an Answer</h3>
 
-			<div class="form-group">
-				<input type="text" placeholder="Give us the Stink" name="response" ng-model="response"></input>
-			</div>
+				<div class="form-group">
+					<div class="wrong" ng-show="wrong" style="font-size:50px">WRONG</div>
+					<input type="text" placeholder="Give us the Stink" name="response" ng-model="response" ng-hide="wrong"></input>
+				</div>
 
-			<button	type="submit" class="btn btn-primary" ng-click="checkAnswer(response)">Answer</button>
-		</form>
+				<button	type="submit" class="btn btn-primary" ng-click="checkAnswer(response)">Answer</button>
+				<button type="submit" class="btn btn-primary" ng-click="skipRiddle()">Skip</button>
+			</form>
 
-		<h2 class="points"> {{ points }} </h2>
+			<h2 class="points"> Score: {{ points }} </h2>
+			<h2 class="timer"> Time left: {{ time }} </h2>
+		</div>
+
+		<div class="gameover" ng-show="endgame">
+			<h1 class="score"> You got {{ points }} points!</h1>
+		</div>
 
 	</script>
 
